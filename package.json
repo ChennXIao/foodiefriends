@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^9.2.0",
     "aws-sdk": "^2.1499.0",
     "axios": "^1.6.3",
     "compute-cosine-similarity": "^1.1.0",
@@ -21,7 +22,6 @@
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "faker": "^5.5.3",
     "google-auth-library": "^9.4.1",
     "ioredis": "^5.3.2",
     "izitoast": "^1.4.0",

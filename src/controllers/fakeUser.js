@@ -2,7 +2,7 @@ const UserModel = require('../models/userModel');
 const RestaurantModel = require('../models/restaurantModel');
 const { decodeFromToken } = require('../controllers/userController');
 const ProfileModel = require('../models/profileModel');
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 const mysql = require('mysql');
 
 const jwt = require('jsonwebtoken');
@@ -51,7 +51,7 @@ const connection = mysql.createConnection({
   
 //   // Function to insert data into MySQL database
 //   const insertData = async (connection, sd) => {
-//     const getRandomRes = () => faker.random.arrayElement(sd);
+//     const getRandomRes = () => faker.helpers.arrayElement(sd);
   
 //     for (let i = 0; i < 100; i++) {
 //       const userData = {
@@ -114,25 +114,25 @@ const connection = mysql.createConnection({
 
 
 // Function to generate random gender, diet, and relationship options
-const getRandomGender = () => faker.random.arrayElement(['male', 'female', 'other']);
-const getRandomDiet = () => faker.random.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
-const getRandomRelationship = () => faker.random.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
-const getRandomLetter = () => faker.random.alpha().toUpperCase();
+const getRandomGender = () => faker.helpers.arrayElement(['male', 'female', 'other']);
+const getRandomDiet = () => faker.helpers.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
+const getRandomRelationship = () => faker.helpers.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
+const getRandomLetter = () => faker.string.alpha().toUpperCase();
 // Insert 100 users into the MySQL table
 for (let i = 0; i < 100; i++) {
   const userData = {
-    nickname: faker.internet.userName(),
+    nickname: faker.internet.username(),
     gender: getRandomGender(),
-    birthday: faker.date.past(30).toISOString().slice(0, 10),
-    member_id:  faker.random.number({
+    birthday: faker.date.past({ years: 30 }).toISOString().slice(0, 10),
+    member_id:  faker.number.int({
         min: 102,
         max: 201,
       }),
-    min:  faker.random.number({
+    min:  faker.number.int({
         min: 18,
         max: 25,
       }),
-    max:  faker.random.number({
+    max:  faker.number.int({
         min: 25,
         max: 40,
       }),
@@ -140,11 +140,11 @@ for (let i = 0; i < 100; i++) {
     relationship: getRandomRelationship(),
     email:getRandomLetter(),
     password:getRandomLetter(),
-    lat:faker.random.number({
+    lat:faker.number.float({
       min: 22.836,
       max: 23.1637,
     }),
-    lng:faker.random.number({
+    lng:faker.number.float({
       min: 120.1625,
       max: 120.4555,
     }),
@@ -250,16 +250,16 @@ for (let i = 0; i < 100; i++) {
 
 
 // // Function to generate random gender, diet, and relationship options
-// const getRandomGender = () => faker.random.arrayElement(['male', 'female', 'other']);
-// const getRandomDiet = () => faker.random.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
-// const getRandomRelationship = () => faker.random.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
-// const getRandomLetter = () => faker.random.alpha().toUpperCase();
+// const getRandomGender = () => faker.helpers.arrayElement(['male', 'female', 'other']);
+// const getRandomDiet = () => faker.helpers.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
+// const getRandomRelationship = () => faker.helpers.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
+// const getRandomLetter = () => faker.string.alpha().toUpperCase();
 // // Insert 100 users into the MySQL table
 // for (let i = 0; i < 500; i++) {
 //   const userData = {
-//     nickname: faker.internet.userName(),
+//     nickname: faker.internet.username(),
 //     gender: getRandomGender(),
-//     birthday: faker.date.past(30).toISOString().slice(0, 10),
+//     birthday: faker.date.past({ years: 30 }).toISOString().slice(0, 10),
 //     member_id: 1051+i,
 //     diet: getRandomDiet(),
 //     relationship: getRandomRelationship(),
@@ -364,11 +364,11 @@ for (let i = 0; i < 100; i++) {
   
   // Function to insert data into MySQL database
   // const insertData = async (connection, sd) => {
-    // const getRandomRes = () => faker.random.arrayElement(sd);
+    // const getRandomRes = () => faker.helpers.arrayElement(sd);
 //     for(let j = 0; j < 3; j++){
 //     for (let i = 0; i < 1628; i++) {
 //       const userData = {
-//         restaurant: faker.random.number({
+//         restaurant: faker.number.int({
 //                     min: 99,
 //                     max: 258,
 //                   }),
@@ -432,16 +432,16 @@ for (let i = 0; i < 100; i++) {
 
 // console.log(sd)
 // Function to generate random gender, diet, and relationship options
-// const getRandomGender = () => faker.random.arrayElement(['male', 'female', 'other']);
-// const getRandomDiet = () => faker.random.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
-// const getRandomRelationship = () => faker.random.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
-// const getRandomLetter = () => faker.random.alpha().toUpperCase();
+// const getRandomGender = () => faker.helpers.arrayElement(['male', 'female', 'other']);
+// const getRandomDiet = () => faker.helpers.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
+// const getRandomRelationship = () => faker.helpers.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
+// const getRandomLetter = () => faker.string.alpha().toUpperCase();
 // // Insert 100 users into the MySQL table
 // for (let i = 0; i < 100; i++) {
 //   const userData = {
-//     nickname: faker.internet.userName(),
+//     nickname: faker.internet.username(),
 //     gender: getRandomGender(),
-//     birthday: faker.date.past(30).toISOString().slice(0, 10),
+//     birthday: faker.date.past({ years: 30 }).toISOString().slice(0, 10),
 //     member_id: 102 + i,
 //     diet: getRandomDiet(),
 //     relationship: getRandomRelationship(),
@@ -484,12 +484,12 @@ for (let i = 0; i < 100; i++) {
 
 // }
 
-// const getRandomDay = () => faker.random.arrayElement([ 'Tuesday', 'Wednesday', 'Saturday', 'Sunday', 'Thursday', 'Monday', 'Friday']);
+// const getRandomDay = () => faker.helpers.arrayElement([ 'Tuesday', 'Wednesday', 'Saturday', 'Sunday', 'Thursday', 'Monday', 'Friday']);
 
-// const getRandomGender = () => faker.random.arrayElement(['male', 'female', 'other']);
-// const getRandomDiet = () => faker.random.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
-// const getRandomRelationship = () => faker.random.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
-// const getRandomLetter = () => faker.random.alpha().toUpperCase();
+// const getRandomGender = () => faker.helpers.arrayElement(['male', 'female', 'other']);
+// const getRandomDiet = () => faker.helpers.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
+// const getRandomRelationship = () => faker.helpers.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
+// const getRandomLetter = () => faker.string.alpha().toUpperCase();
 // // Insert 100 users into the MySQL table
 
 
@@ -530,17 +530,17 @@ for (let i = 0; i < 100; i++) {
 // async function insertUserData() {
 //   for (let i = 0; i < 1500; i++) {
 //     const userData = {
-//       nickname: faker.internet.userName(),
+//       nickname: faker.internet.username(),
 //       gender: getRandomGender(),
 //       day: getRandomDay(),
   
-//       birthday: faker.date.past(30).toISOString().slice(0, 10),
+//       birthday: faker.date.past({ years: 30 }).toISOString().slice(0, 10),
 //       member_id:0 + i,
-//       min:  faker.random.number({
+//       min:  faker.number.int({
 //           min: 0,
 //           max: 25,
 //         }),
-//       max:  faker.random.number({
+//       max:  faker.number.int({
 //           min: 25,
 //           max: 40,
 //         }),
@@ -548,19 +548,19 @@ for (let i = 0; i < 100; i++) {
 //       relationship: getRandomRelationship(),
 //       email:getRandomLetter(),
 //       password:getRandomLetter(),
-//       lat:faker.random.float({
+//       lat:faker.numebr.float({
 //         min: 22.836,
 //         max: 23.1637,
 //       }),
-//       lng:faker.random.float({
+//       lng:faker.number.float({
 //         min: 120.1625,
 //         max: 120.4555,
 //       }),
-//       time: faker.random.number({
+//       time: faker.number.int({
 //           min: 10,
 //           max: 16,
 //         }) +":00",
-//         date: "2023-12-0"+faker.random.number({
+//         date: "2023-12-0"+faker.number.int({
 //           min: 1,
 //           max: 5,
 //         }),
@@ -581,17 +581,17 @@ for (let i = 0; i < 100; i++) {
 
 // for (let i = 0; i < 1500; i++) {
 //   const userData = {
-//     nickname: faker.internet.userName(),
+//     nickname: faker.internet.username(),
 //     gender: getRandomGender(),
 //     day: getRandomDay(),
 
-//     birthday: faker.date.past(30).toISOString().slice(0, 10),
+//     birthday: faker.date.past({ years: 30 }).toISOString().slice(0, 10),
 //     member_id:0 + i,
-//     min:  faker.random.number({
+//     min:  faker.number.int({
 //         min: 0,
 //         max: 25,
 //       }),
-//     max:  faker.random.number({
+//     max:  faker.number.int({
 //         min: 25,
 //         max: 40,
 //       }),
@@ -599,19 +599,19 @@ for (let i = 0; i < 100; i++) {
 //     relationship: getRandomRelationship(),
 //     email:getRandomLetter(),
 //     password:getRandomLetter(),
-//     lat:faker.random.float({
+//     lat:faker.number.float({
 //       min: 22.836,
 //       max: 23.1637,
 //     }),
-//     lng:faker.random.float({
+//     lng:faker.number.float({
 //       min: 120.1625,
 //       max: 120.4555,
 //     }),
-//     time: faker.random.number({
+//     time: faker.number.int({
 //         min: 10,
 //         max: 16,
 //       }) +":00",
-//       date: "2023-12-0"+faker.random.number({
+//       date: "2023-12-0"+faker.number.int({
 //         min: 1,
 //         max: 5,
 //       }),

@@ -7,7 +7,6 @@ const bodyParser = require('body-parser');
 const _ = require("lodash");
 const jwt = require('jsonwebtoken');
 const aws = require('aws-sdk');
-const faker = require('faker');
 
 require('dotenv').config();
 const dbHost = process.env.DB_HOST;

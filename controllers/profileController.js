@@ -9,7 +9,6 @@ const mysql = require('mysql');
 
 const _ = require("lodash");
 const aws = require('aws-sdk');
-const faker = require('faker');
 var similarity = require( 'compute-cosine-similarity' );
 
 require('dotenv').config();
