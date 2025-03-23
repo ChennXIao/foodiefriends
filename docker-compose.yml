@@ -34,7 +34,7 @@ services:
       - DB_NAME=${MYSQL_DATABASE}
     ports:
       - "8001:8000"
-    command: ["npm", "run", "dev"]
+    command: ["npm", "run", "start"]
 
   mysql:
     image: mysql:latest
