@@ -8,6 +8,7 @@ const RestaurantController = require('../controllers/restaurantController');
 const ProfileController = require('../controllers/profileController');
 const PairController = require('../controllers/pairController');
 
+
 const router = express.Router();
 
 // Define user routes
@@ -52,5 +53,7 @@ router.put('/api/matches',PairController.updatePair);
 // router.get('/api/pairs',PairController.checkPair);
 router.get('/api/matches',PairController.getMatches);
 router.delete('/api/matches/:id',PairController.cancelDate);
+
+router.get('/api/pairs',PairController.checkPair);
 
 module.exports = router;

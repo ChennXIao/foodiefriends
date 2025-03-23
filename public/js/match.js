@@ -1,9 +1,9 @@
 let token = localStorage.getItem("token")
   ? localStorage.getItem("token")
   : document.cookie.replace(
-      /(?:(?:^|.*;\s*)authToken\s*=\s*([^;]*).*$)|^.*$/,
-      "$1"
-    );
+    /(?:(?:^|.*;\s*)authToken\s*=\s*([^;]*).*$)|^.*$/,
+    "$1"
+  );
 let userId;
 let cardContainer = document.getElementById("cardContainer");
 let cardData;
@@ -15,7 +15,7 @@ let selectedTime, selectedDate;
 let currentUserFilter;
 let currentUserDate;
 let gender, minAge, maxAge;
-const socket = io("https://foodiefriends.online", {
+const socket = io("http://localhost:8000", {
   transports: ["websocket"],
   allowEIO3: true,
 });
@@ -54,21 +54,20 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   if (reSelectRestaurantBtn) {
-    reSelectRestaurantBtn.addEventListener("click", () => {
+    reSelectRestaurantBtn.addEventListener("clickr", () => {
       try {
         localStorage.setItem("activeTab", "restaurant");
       } catch (e) {
         console.error("Error saving to localStorage:", e);
       }
 
-      setTimeout(() => {}, 1000);
+      setTimeout(() => { }, 1000);
     });
   }
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
   let currentUserFilter = await checkFilter();
-  console.log(date_notification_text);
   checkDate().then((result) => {
     currentUserDate = result[0];
     document.getElementById("datePicker").value = currentUserDate.date;
@@ -77,13 +76,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     result
       ? (document.querySelector("#date_notification_text").innerHTML =
-          currentUserDate.date + " " + currentUserDate.time)
+        currentUserDate.date.slice(0, 10) + " " + currentUserDate.time)
       : (document.querySelector("#date_notification_text").innerHTML =
-          "Haven't chosed one");
+        "Haven't chosed one");
   });
 });
 
 loadSpinnerBtn.addEventListener("click", async () => {
+
   if (!currentUserDate && !selectedDate) {
     showToast("", "Please select an available time!", false);
   } else {
@@ -94,10 +94,11 @@ loadSpinnerBtn.addEventListener("click", async () => {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        date: selectedDate ? selectedDate : currentUserDate.date,
+        date: selectedDate ? selectedDate : currentUserDate.date.slice(0, 10),
         time: selectedTime ? selectedTime : currentUserDate.time,
       }),
     });
+
     let result = await response.json();
 
     cardContainer.innerHTML = "";
@@ -163,11 +164,7 @@ document
   .addEventListener("click", async function () {
     filterModal.show();
     const filterGender = currentUserFilter.gender;
-    console.log(
-      currentUserFilter.minage,
-      currentUserFilter.maxage,
-      currentUserFilter.gender
-    );
+
     customRangeSlider.setValue([
       currentUserFilter.minage,
       currentUserFilter.maxage,
@@ -226,7 +223,6 @@ saveChangesButton.addEventListener("click", async (e) => {
 async function displayData() {
   try {
     cardData = await getCurrentUser();
-    console.log(cardData);
   } catch (error) {
     console.error("Error fetching data:", error);
   }
@@ -252,7 +248,7 @@ function NoCardHTML() {
   setTimeout(() => {
     reSelectBtn = document.querySelector("#reselect_btn");
     if (reSelectBtn) {
-      reSelectBtn.addEventListener("click", () => {});
+      reSelectBtn.addEventListener("click", () => { });
     }
   });
 
@@ -266,8 +262,8 @@ function NoCardHTML() {
 }
 
 function getCardHTML(card) {
-  const placeId = card.name[0].placeid;
-  const backendUrl = "https://foodiefriends.online/getPlaceDetails";
+  const placeId = 'ChIJbTKSE4KpQjQRXDZZI57v-pM';
+  const backendUrl = "http://localhost:8000/getPlaceDetails";
   let apiKey;
   fetch("/api/getApiKey")
     .then((response) => response.json())
@@ -299,7 +295,9 @@ function getCardHTML(card) {
             fetch(`${un_apiUrl}?client_id=${un_apiKey}&query=${query}`)
               .then((response) => response.json())
               .then((data) => {
-                imageUrl = data.urls.regular;
+                console.log(data);
+                // imageUrl = data.urls.regular;
+                imageUrl = 'https://www.google.com/imgres?q=random%20picture&imgurl=https%3A%2F%2Fmedia.istockphoto.com%2Fid%2F1618846975%2Fphoto%2Fsmile-black-woman-and-hand-pointing-in-studio-for-news-deal-or-coming-soon-announcement-on.jpg%3Fs%3D612x612%26w%3D0%26k%3D20%26c%3DLUvvJu4sGaIry5WLXmfQV7RStbGG5hEQNo8hEFxZSGY%3D&imgrefurl=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Frandom-people-pointing-and-showing-with-hands&docid=ZhSLD1XItFYNhM&tbnid=SXQ3dxo391mSbM&vet=12ahUKEwis_JS41Z2MAxV1ka8BHZZlFeAQM3oECBUQAA..i&w=612&h=612&hcb=2&ved=2ahUKEwis_JS41Z2MAxV1ka8BHZZlFeAQM3oECBUQAA';
                 const cardHTML = ren(card, imageUrl);
                 resolve(cardHTML);
               })
@@ -317,7 +315,7 @@ function ren(card, photoUrl) {
   card.name.forEach((e) => {
     userRestaurant.push(e.name);
   });
-  console.log(card.name[0]);
+
   return `
     <div class="card tinder-card" id="swipeCard">
       <img src="${photoUrl}" class="card-img-top" alt="${card.name}">
@@ -332,7 +330,7 @@ function ren(card, photoUrl) {
 
           <h5>I  also like </h5>
           <h5>${userRestaurant} </h5>
-          <h5>I am finding a : 
+          <h5>I am finding a :
           <h6>${card.profile.relationship} relationship.</h6>
           <h5>I am a ${card.profile.diet}.</h5>
           <hr>
@@ -393,7 +391,6 @@ async function like(id) {
     }),
   });
   let match_result = await match_response.json();
-  console.log(match_result.status);
   if (match_result.status == true) {
     sendLike(id);
   }
@@ -429,9 +426,9 @@ function getLocation() {
 function showPosition(position) {
   console.log(
     "Latitude: " +
-      position.coords.latitude +
-      "\nLongitude: " +
-      position.coords.longitude
+    position.coords.latitude +
+    "\nLongitude: " +
+    position.coords.longitude
   );
   currentLat = position.coords.latitude;
   currentLng = position.coords.longitude;
@@ -501,12 +498,10 @@ async function checkFilter() {
     },
   });
   let result = await response.json();
-  console.log(result);
   currentUserFilter = result.data[0];
   if (currentUserFilter == null) {
     filterModal.show();
   } else {
-    console.log(currentUserFilter);
     return result.data[0];
   }
 }
@@ -598,7 +593,6 @@ async function getCurrentUser() {
 function connect() {
   socket.on("connect", async () => {
     userId = await login_check();
-    console.log(socket.id);
     socket.emit("setUserId", userId);
   });
 }
@@ -607,7 +601,6 @@ connect();
 
 function getNotified() {
   socket.on("notification", (message) => {
-    console.log("Notification:", message);
     document.getElementById("its_a_match_btn").click();
   });
 }
@@ -636,6 +629,6 @@ async function login_check() {
       userId = result.id;
 
       return result.id;
-    } catch (error) {}
+    } catch (error) { }
   }
 }

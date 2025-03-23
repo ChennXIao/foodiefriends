@@ -333,13 +333,12 @@ setTimeout(() => {
       let result = await response.json();
       let data = result;
       if (data.ok) {
-        // showToast("Submit successfully!",true)
       }
       const selectedDays = Array.from(
         document.querySelectorAll('input[name="selectedDays"]:checked')
       ).map((checkbox) => checkbox.defaultValue);
       if (selectedDays) {
-        console.log(selectedDays);
+
       }
       let dayResponse = await fetch("api/day", {
         method: "PUT",
@@ -355,7 +354,6 @@ setTimeout(() => {
       }
     });
   } else {
-    //
   }
 }, 2000);
 
@@ -389,7 +387,6 @@ async function login_check() {
 
       return result.id;
     } catch (error) {
-      // console.error("Error:", error);
     }
   }
 }
@@ -421,7 +418,6 @@ async function fetchProfile() {
     },
   });
   let result = await response.json();
-  // console.log(result.data[0])
   return result.data[0];
 }
 
@@ -432,20 +428,20 @@ async function getUserProfile() {
 
     // Log the data
     let profileContent = document.querySelector("#v-pills-home");
-    profileContent.innerHTML = `  
+    profileContent.innerHTML = `
     <div class="container mt-5">
-    
+
     <form class="update_profile_btn">
-    
+
         <label for="input1" class="form-label">Nickname: </label>
         <input type="text" class="form-control" name="name" placeholder=${userProfile.nickname} id="input1">
-    
+
         <label for="input2" class="form-label">Gender: </label>
         <input type="text" class="form-control" placeholder=${userProfile.gender}  id="input2" disabled>
-    
+
         <label for="input3" class="form-label">Birthday: </label>
         <input type="text" class="form-control" placeholder=${userProfile.birthday} id="input3" disabled>
-    
+
         <label for="input4" class="form-label">Relationship: </label>
         <select class="form-select form-select-lg" name="relationshipgoal" id="relationshipSelect">
             <option value="long term">long term</option>
@@ -453,7 +449,7 @@ async function getUserProfile() {
             <option value="new friends">new friends</option>
             <option value="not sure yet">not sure yet</option>
           </select>
-    
+
         <label for="input5" class="form-label" >Dietary Preference: </label>
         <select class="form-select form-select-lg" name="diet" id="dietSelect">
             <option value="vegan">vegan</option>
@@ -500,7 +496,7 @@ function getCardHTML(card) {
   <br>
   <h5>I  also like </h5>
   <h5></h5>
-  <h5>I am finding a : 
+  <h5>I am finding a :
   <h6>${card.relationship} relationship.</h6>
   <h5>I am a ${card.diet}.</h5>
   <hr>
@@ -763,7 +759,6 @@ async function getDay() {
     },
   });
   let result = await response.json();
-  console.log(result);
   return result;
   if (result.error) {
   }

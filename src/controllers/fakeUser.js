@@ -2,19 +2,23 @@ const UserModel = require('../models/userModel');
 const RestaurantModel = require('../models/restaurantModel');
 const { decodeFromToken } = require('../controllers/userController');
 const ProfileModel = require('../models/profileModel');
-const faker = require('faker');
-const mysql = require('mysql');
+const { faker } = require('@faker-js/faker');
+const mysql = require('mysql2');
+const DB_PORT = process.env.DB_PORT;
 
 const jwt = require('jsonwebtoken');
 const secretKey = 'your-secret-key';
 const _ = require("lodash");
+
+const pool = require('../models/connectDb');
+
 const connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "sharon616",
-    database: 'foodiefriend',
-    port: 3306,
-    insecureAuth: true,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: 'foodiefriend',
+  port: process.env.DB_PORT,
+  insecureAuth: true,
 });
 
 
@@ -29,36 +33,36 @@ const connection = mysql.createConnection({
 //     const browser = await puppeteer.launch();
 //     const page = await browser.newPage();
 //     await page.goto(url);
-  
+
 //     const data = await page.evaluate(() => {
 //       const h5Elements = document.querySelectorAll('h5');
 //       const h5Array = Array.from(h5Elements);
 //       const contentArray = [];
-  
+
 //       h5Array.forEach(element => {
 //         const startIndex = element.textContent.indexOf(' ');
 //         const endIndex = element.textContent.indexOf('。');
 //         const textContent = element.textContent.substring(6, endIndex).trim();
 //         contentArray.push(textContent);
 //       });
-  
+
 //       return { content: contentArray };
 //     });
-  
+
 //     await browser.close();
 //     return data.content;
 //   };
-  
+
 //   // Function to insert data into MySQL database
 //   const insertData = async (connection, sd) => {
 //     const getRandomRes = () => faker.random.arrayElement(sd);
-  
+
 //     for (let i = 0; i < 100; i++) {
 //       const userData = {
 //         restaurant: getRandomRes(),
 //         member_id: 102+i
 //       };
-  
+
 
 //       // Check the count before insertion
 //       const countQuery = `SELECT COUNT(*) AS data_count FROM restaurant WHERE member_id = ?`;
@@ -78,14 +82,14 @@ const connection = mysql.createConnection({
 //       VALUES (?, ?)
 //     `;
 //       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before each insertion
-    
+
 //         connection.query(insertQuery, [userData.restaurant, userData.member_id], (err, results) => {
 //             if (err) {
 //               console.error(`Error inserting user ${i + 1}:`, err.message);
 //             } else {
 //               console.log(`User ${i + 1} inserted successfully`);
 //             }
-      
+
 //             if (i === 99) {
 //               // Close the MySQL connection after the last insertion
 //               connection.end(endErr => {
@@ -100,7 +104,7 @@ const connection = mysql.createConnection({
 
 //     }
 //   };
-  
+
 
 //   // Use Promises to control the flow
 //   scrapeData()
@@ -113,106 +117,135 @@ const connection = mysql.createConnection({
 
 
 
+
 // Function to generate random gender, diet, and relationship options
-const getRandomGender = () => faker.random.arrayElement(['male', 'female', 'other']);
-const getRandomDiet = () => faker.random.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
-const getRandomRelationship = () => faker.random.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
-const getRandomLetter = () => faker.random.alpha().toUpperCase();
-// Insert 100 users into the MySQL table
-for (let i = 0; i < 100; i++) {
-  const userData = {
-    nickname: faker.internet.userName(),
-    gender: getRandomGender(),
-    birthday: faker.date.past(30).toISOString().slice(0, 10),
-    member_id:  faker.random.number({
-        min: 102,
-        max: 201,
-      }),
-    min:  faker.random.number({
-        min: 18,
-        max: 25,
-      }),
-    max:  faker.random.number({
-        min: 25,
-        max: 40,
-      }),
-    diet: getRandomDiet(),
-    relationship: getRandomRelationship(),
-    email:getRandomLetter(),
-    password:getRandomLetter(),
-    lat:faker.random.number({
-      min: 22.836,
-      max: 23.1637,
-    }),
-    lng:faker.random.number({
-      min: 120.1625,
-      max: 120.4555,
-    }),
+// const getRandomGender = () => faker.helpers.arrayElement(['male', 'female', 'other']);
+// const getRandomDiet = () => faker.helpers.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
+// const getRandomRelationship = () => faker.helpers.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
+// const getRandomLetter = () => faker.string.alpha().toUpperCase();
+// // Insert 100 users into the MySQL table
+// for (let i = 0; i < 100; i++) {
+//   const userData = {
+//     nickname: 'User',
+//     gender: getRandomGender(),
+//     birthday: faker.date.past(30).toISOString().slice(0, 10),
+//     member_id: faker.number.int({
+//       min: 0,
+//       max: 60,
+//     }),
+//     min: faker.number.int({
+//       min: 18,
+//       max: 25,
+//     }),
+//     max: faker.number.int({
+//       min: 25,
+//       max: 40,
+//     }),
+//     diet: getRandomDiet(),
+//     relationship: getRandomRelationship(),
+//     email: getRandomLetter(),
+//     password: getRandomLetter(),
+//     lat: faker.number.float({
+//       min: 22.836,
+//       max: 23.1637,
+//     }),
+//     lng: faker.number.float({
+//       min: 120.1625,
+//       max: 120.4555,
+//     }),
+//     email: getRandomLetter(),
+//     password: getRandomLetter(),
 
-  };
-
-  const insertQuery = `
-    INSERT INTO profile (nickname, gender, birthday, member_id, diet, relationship)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
-  const insertQuery_filter = `
-  INSERT INTO filter (gender,minage,maxage,lat,lng,member_id) VALUES (?, ?,?, ?,?, ?)
-  `;
-  connection.query(insertQuery_filter, [
-    userData.gender,
-    userData.min,
-    userData.max,
-    userData.lat,
-    userData.lng,
-    userData.member_id,
-
-  ], (err, results) => {
-    if (err) {
-      console.error(`Error inserting user ${i + 1}:`, err.message);
-    } else {
-      console.log(`User ${i + 1} inserted successfully`);
-    }
-
-    if (i === 99) {
-      // Close the MySQL connection after the last insertion
-      connection.end((endErr) => {
-        if (endErr) {
-          console.error('Error closing MySQL connection:', endErr.message);
-        } else {
-          console.log('MySQL connection closed');
-        }
-      });
-    }
-  });
+//   };
 
 
-  connection.query(insertQuery, [
-    userData.nickname,
-    userData.gender,
-    userData.birthday,
-    userData.member_id,
-    userData.diet,
-    userData.relationship,
-  ], (err, results) => {
-    if (err) {
-      console.error(`Error inserting user ${i + 1}:`, err.message);
-    } else {
-      console.log(`User ${i + 1} inserted successfully`);
-    }
+// const insertQuery = `
+//   INSERT INTO profile (nickname, gender, birthday, member_id, diet, relationship)
+//   VALUES (?, ?, ?, ?, ?, ?)
+// `;
+// const insertQuery_filter = `
+// INSERT INTO filter (gender,minage,maxage,lat,lng,member_id) VALUES (?, ?,?, ?,?, ?)
+// `;
+// connection.query(insertQuery_filter, [
+//   userData.gender,
+//   userData.min,
+//   userData.max,
+//   userData.lat,
+//   userData.lng,
+//   userData.member_id,
 
-    if (i === 99) {
-      // Close the MySQL connection after the last insertion
-      connection.end((endErr) => {
-        if (endErr) {
-          console.error('Error closing MySQL connection:', endErr.message);
-        } else {
-          console.log('MySQL connection closed');
-        }
-      });
-    }
-  });
+// ], (err, results) => {
+//   if (err) {
+//     console.error(`Error inserting user ${i + 1}:`, err.message);
+//   } else {
+//     console.log(`User ${i + 1} inserted successfully`);
+//   }
 
-}
+//   if (i === 99) {
+//     // Close the MySQL connection after the last insertion
+//     connection.end((endErr) => {
+//       if (endErr) {
+//         console.error('Error closing MySQL connection:', endErr.message);
+//       } else {
+//         console.log('MySQL connection closed');
+//       }
+//     });
+//   }
+// });
+
+//   const insertQuery_member = `
+//   INSERT INTO member (email, password)
+//   VALUES (?, ?)
+// `;
+// connection.query(insertQuery_member, [
+//     userData.email,
+//     userData.password,
+//   ], (err, results) => {
+//     if (err) {
+//       console.error(`Error inserting user ${i + 1}:`, err.message);
+//     } else {
+//       console.log(`User ${i + 1} inserted successfully`);
+//     }
+
+//     if (i === 100) {
+//       // Close the MySQL connection after the last insertion
+//       connection.end((endErr) => {
+//         if (endErr) {
+//           console.error('Error closing MySQL connection:', endErr.message);
+//         } else {
+//           console.log('MySQL connection closed');
+//         }
+//       });
+//     }
+//   });
+
+//   connection.query(insertQuery, [
+//     userData.nickname,
+//     userData.gender,
+//     userData.birthday,
+//     userData.member_id,
+//     userData.diet,
+//     userData.relationship,
+//   ], (err, results) => {
+//     if (err) {
+//       console.error(`Error inserting user ${i + 1}:`, err.message);
+//     } else {
+//       console.log(`User ${i + 1} inserted successfully`);
+//     }
+
+//     if (i === 99) {
+//       // Close the MySQL connection after the last insertion
+//       connection.end((endErr) => {
+//         if (endErr) {
+//           console.error('Error closing MySQL connection:', endErr.message);
+//         } else {
+//           console.log('MySQL connection closed');
+//         }
+//       });
+//     }
+//   });
+
+// }
 
 
 // const restaurantType = 'restaurant';
@@ -235,7 +268,7 @@ for (let i = 0; i < 100; i++) {
 //   places.forEach(place => {
 //     const { name, vicinity,place_id,price_level } = place;
 //     const query = `INSERT INTO detail (name, address,placeid,price) VALUES (?,?,?,?)`;
-    
+
 //     connection.query(query,[name, vicinity, place_id,price_level?price_level:0], (error, results) => {
 //       if (error) throw error;
 //       console.log(`Place '${name}' inserted with ID: ${results.insertId}`);
@@ -324,7 +357,7 @@ for (let i = 0; i < 100; i++) {
 //       });
 //     }
 //   });
-  
+
 
 // }
 
@@ -342,29 +375,29 @@ for (let i = 0; i < 100; i++) {
 //     page.setDefaultNavigationTimeout(120000); // Set timeout to 60 seconds
 
 //     await page.goto(url);
-  
+
 //     const data = await page.evaluate(() => {
 //       const h5Elements = document.querySelectorAll('h5');
 //       const h5Array = Array.from(h5Elements);
 //       const contentArray = [];
-  
+
 //       h5Array.forEach(element => {
 //         const startIndex = element.textContent.indexOf(' ');
 //         const endIndex = element.textContent.indexOf('。');
 //         const textContent = element.textContent.substring(6, endIndex).trim();
 //         contentArray.push(textContent);
 //       });
-  
+
 //       return { content: contentArray };
 //     });
-  
+
 //     await browser.close();
 //     return data.content;
 //   };
-  
-  // Function to insert data into MySQL database
-  // const insertData = async (connection, sd) => {
-    // const getRandomRes = () => faker.random.arrayElement(sd);
+
+// Function to insert data into MySQL database
+// const insertData = async (connection, sd) => {
+// const getRandomRes = () => faker.random.arrayElement(sd);
 //     for(let j = 0; j < 3; j++){
 //     for (let i = 0; i < 1628; i++) {
 //       const userData = {
@@ -374,7 +407,7 @@ for (let i = 0; i < 100; i++) {
 //                   }),
 //         member_id: 1+i
 //       };
-  
+
 
 //       // // Check the count before insertion
 //       // const countQuery = `SELECT COUNT(*) AS data_count FROM restaurants WHERE member_id = ?`;
@@ -394,16 +427,16 @@ for (let i = 0; i < 100; i++) {
 //       VALUES (?, ?)
 //     `;
 //       // await new Promise(resolve => setTimeout(resolve, 200)); // Wait for 1 second before each insertion
-    
+
 //         connection.query(insertQuery, [userData.restaurant, userData.member_id], (err, results) => {
 //             if (err) {
 //               console.error(`Error inserting user ${i + 1}:`, err.message);
 //             } else {
 //               console.log(`User ${i + 1} inserted successfully`);
 //             }
-      
 
-//           }); 
+
+//           });
 
 //     }
 //     if (j === 1627) {
@@ -417,16 +450,16 @@ for (let i = 0; i < 100; i++) {
 //         });
 //       }
 // }
-  
-  
 
-  // // Use Promises to control the flow
-  // scrapeData()
-  //   .then(scrapedData => {
-  //     console.log('Scraped Data:', scrapedData);
-  //     return insertData(connection, scrapedData);
-  //   })
-  //   .catch(error => console.error('Error:', error));
+
+
+// // Use Promises to control the flow
+// scrapeData()
+//   .then(scrapedData => {
+//     console.log('Scraped Data:', scrapedData);
+//     return insertData(connection, scrapedData);
+//   })
+//   .catch(error => console.error('Error:', error));
 
 
 
@@ -484,99 +517,82 @@ for (let i = 0; i < 100; i++) {
 
 // }
 
-// const getRandomDay = () => faker.random.arrayElement([ 'Tuesday', 'Wednesday', 'Saturday', 'Sunday', 'Thursday', 'Monday', 'Friday']);
+const util = require('util');
 
-// const getRandomGender = () => faker.random.arrayElement(['male', 'female', 'other']);
-// const getRandomDiet = () => faker.random.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
-// const getRandomRelationship = () => faker.random.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
-// const getRandomLetter = () => faker.random.alpha().toUpperCase();
-// // Insert 100 users into the MySQL table
+const connectionQuery = util.promisify(connection.query).bind(connection);
 
+// Helper functions
+const getRandomDay = () => faker.helpers.arrayElement([
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+]);
 
+const getRandomGender = () => faker.helpers.arrayElement(['male', 'female', 'other']);
+const getRandomDiet = () => faker.helpers.arrayElement(['vegan', 'vegetarian', 'meat-eaters', 'no preference']);
+const getRandomRelationship = () => faker.helpers.arrayElement(['long term', 'short term', 'new friends', 'not sure yet']);
+const getRandomLetter = () => faker.string.alpha(1).toUpperCase();
 
-// const util = require('util');
-// const connectionQuery = util.promisify(connection.query).bind(connection);
+// SQL queries
+const insertQuery_day = `INSERT INTO day (member_id, day) VALUES (?, ?)`;
+// const insertQuery_filter = `INSERT INTO filter (gender, minage, maxage, lat, lng, member_id) VALUES (?, ?, ?, ?, ?, ?)`;
+const insertQuery_date = `INSERT INTO date (date, time, member_id) VALUES (?, ?, ?)`;
+const selectQuery_day = `SELECT * FROM day WHERE member_id = ? AND day = ?`;
 
-// // ... (your other code)
-// const insertQuery_day = `
-// INSERT INTO day (member_id, day) VALUES (?, ?)
-// `;
-// const insertQuery_filter = `
-// INSERT INTO filter (gender,minage,maxage,lat,lng,member_id) VALUES (?, ?,?, ?,?, ?)
-// `;
-// const insertQuery_date = `
-// INSERT INTO date (date,time,member_id) VALUES (?,?, ?)
-// `;
-// const selectQuery_day = `
-// select * from day where member_id = ? and day=?;
-// `;
+async function checkAndInsertData(userData) {
+  try {
+    const results = await connectionQuery(selectQuery_day, [userData.member_id, userData.day]);
 
-// async function checkAndInsertData(userData) {
-//   try {
-//     const results = await connectionQuery(selectQuery_day, [userData.member_id, userData.day]);
-//     console.log(results);
+    if (results.length === 0) {
+      await connectionQuery(insertQuery_date, [userData.date, userData.time, userData.member_id]);
+      console.log(`Inserted day for member ${userData.member_id}`);
+    } else {
+      console.log(`Day already exists for member ${userData.member_id}`);
+    }
+  } catch (err) {
+    console.error('Error:', err.message);
+  }
+}
 
-//     if (results.length === 0) {
-//       await connectionQuery(insertQuery_day, [userData.member_id, userData.day]);
-//       console.log('Data inserted successfully');
-//     } else {
-//       console.log('Data already exists');
-//     }
-//   } catch (err) {
-//     console.error('Error:', err.message);
-//   }
-// }
+async function insertUserData() {
+  try {
+    for (let i = 0; i < 100; i++) {
+      const userData = {
+        nickname: 'User',
+        gender: getRandomGender(),
+        day: getRandomDay(),
+        birthday: faker.date.past({ years: 30 }).toISOString().slice(0, 10),
+        member_id: i,
+        min: faker.number.int({ min: 18, max: 25 }),
+        max: faker.number.int({ min: 26, max: 40 }),
+        diet: getRandomDiet(),
+        relationship: getRandomRelationship(),
+        email: `${faker.string.alpha(5)}@example.com`,
+        password: faker.internet.password(),
+        lat: faker.number.float({ min: 22.836, max: 23.1637, precision: 0.0001 }),
+        lng: faker.number.float({ min: 120.1625, max: 120.4555, precision: 0.0001 }),
+        time: `${faker.number.int({ min: 10, max: 16 })}:00`,
+        date: faker.date.between({ from: '2023-12-01', to: '2023-12-05' }).toISOString().slice(0, 10)
+      };
 
-// async function insertUserData() {
-//   for (let i = 0; i < 1500; i++) {
-//     const userData = {
-//       nickname: faker.internet.userName(),
-//       gender: getRandomGender(),
-//       day: getRandomDay(),
-  
-//       birthday: faker.date.past(30).toISOString().slice(0, 10),
-//       member_id:0 + i,
-//       min:  faker.random.number({
-//           min: 0,
-//           max: 25,
-//         }),
-//       max:  faker.random.number({
-//           min: 25,
-//           max: 40,
-//         }),
-//       diet: getRandomDiet(),
-//       relationship: getRandomRelationship(),
-//       email:getRandomLetter(),
-//       password:getRandomLetter(),
-//       lat:faker.random.float({
-//         min: 22.836,
-//         max: 23.1637,
-//       }),
-//       lng:faker.random.float({
-//         min: 120.1625,
-//         max: 120.4555,
-//       }),
-//       time: faker.random.number({
-//           min: 10,
-//           max: 16,
-//         }) +":00",
-//         date: "2023-12-0"+faker.random.number({
-//           min: 1,
-//           max: 5,
-//         }),
-  
-//     };
+      try {
+        await checkAndInsertData(userData);
+      } catch (err) {
+        console.error(`Error inserting data for member_id ${userData.member_id}:`, err.message);
+      }
+    }
+  } catch (err) {
+    console.error("Unexpected error:", err.message);
+  } finally {
+    // Ensure MySQL connection is closed even if there's an error
+    connection.end((err) => {
+      if (err) console.error("Error closing connection:", err.message);
+      else console.log("MySQL connection closed.");
+    });
+  }
+}
 
-//     await checkAndInsertData(userData);
-//   }
+// Call the function
+insertUserData();
 
-//   // Close the MySQL connection after all insertions
-//   await connection.end();
-//   console.log('MySQL connection closed');
-// }
-
-// // Call the function to insert user data
-// insertUserData();
 
 
 // for (let i = 0; i < 1500; i++) {
@@ -618,12 +634,12 @@ for (let i = 0; i < 100; i++) {
 
 //   };
 
- 
+
 
 
 
 //   connection.query(insertQuery_day, [
-//     userData.member_id, 
+//     userData.member_id,
 //     userData.day,
 //   ], (err, results) => {
 //     if (err) {
@@ -644,56 +660,56 @@ for (let i = 0; i < 100; i++) {
 //     }
 //   });
 
-  //   connection.query(insertQuery_date, [
-  //   userData.date.toString(),
-  //   userData.time,
-  //   userData.member_id,
+//   connection.query(insertQuery_date, [
+//   userData.date.toString(),
+//   userData.time,
+//   userData.member_id,
 
-  // ], (err, results) => {
-  //   if (err) {
-  //     console.error(`Error inserting user ${i + 1}:`, err.message);
-  //   } else {
-  //     console.log(`User ${i + 1} inserted successfully`);
-  //   }
+// ], (err, results) => {
+//   if (err) {
+//     console.error(`Error inserting user ${i + 1}:`, err.message);
+//   } else {
+//     console.log(`User ${i + 1} inserted successfully`);
+//   }
 
-  //   if (i === 499) {
-  //     // Close the MySQL connection after the last insertion
-  //     connection.end((endErr) => {
-  //       if (endErr) {
-  //         console.error('Error closing MySQL connection:', endErr.message);
-  //       } else {
-  //         console.log('MySQL connection closed');
-  //       }
-  //     });
-  //   }
-  // });
+//   if (i === 499) {
+//     // Close the MySQL connection after the last insertion
+//     connection.end((endErr) => {
+//       if (endErr) {
+//         console.error('Error closing MySQL connection:', endErr.message);
+//       } else {
+//         console.log('MySQL connection closed');
+//       }
+//     });
+//   }
+// });
 
-  // connection.query(insertQuery_filter, [
-  //   userData.gender,
-  //   userData.min,
-  //   userData.max,
-  //   userData.lat,
-  //   userData.lng,
-  //   userData.member_id,
+// connection.query(insertQuery_filter, [
+//   userData.gender,
+//   userData.min,
+//   userData.max,
+//   userData.lat,
+//   userData.lng,
+//   userData.member_id,
 
-  // ], (err, results) => {
-  //   if (err) {
-  //     console.error(`Error inserting user ${i + 1}:`, err.message);
-  //   } else {
-  //     console.log(`User ${i + 1} inserted successfully`);
-  //   }
+// ], (err, results) => {
+//   if (err) {
+//     console.error(`Error inserting user ${i + 1}:`, err.message);
+//   } else {
+//     console.log(`User ${i + 1} inserted successfully`);
+//   }
 
-  //   if (i === 499) {
-  //     // Close the MySQL connection after the last insertion
-  //     connection.end((endErr) => {
-  //       if (endErr) {
-  //         console.error('Error closing MySQL connection:', endErr.message);
-  //       } else {
-  //         console.log('MySQL connection closed');
-  //       }
-  //     });
-  //   }
-  // });
+//   if (i === 499) {
+//     // Close the MySQL connection after the last insertion
+//     connection.end((endErr) => {
+//       if (endErr) {
+//         console.error('Error closing MySQL connection:', endErr.message);
+//       } else {
+//         console.log('MySQL connection closed');
+//       }
+//     });
+//   }
+// });
 
 
 // }

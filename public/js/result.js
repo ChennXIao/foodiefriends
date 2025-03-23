@@ -9,7 +9,7 @@ let cardIndex;
 const buttons = document.querySelectorAll(".nav-link");
 const defaultClicked = document.querySelector("#v-pills-match-results-tab");
 let backToMatchBtn = document.querySelector("#backToMatchBtn");
-const socket = io("https://foodiefriends.online", {
+const socket = io("http://localhost:8000", {
   transports: ["websocket"],
   allowEIO3: true,
 });
@@ -33,7 +33,6 @@ document
     myModal.show();
   });
 
-// JavaScript to close the modal when "Save changes" button is clicked
 document
   .getElementById("keepmatchButton")
   .addEventListener("click", function () {
@@ -44,6 +43,7 @@ document
 
 document.addEventListener("DOMContentLoaded", async () => {
   let whoUserLikes = await likeOthers();
+  console.log(whoUserLikes);
   document.querySelector("#i-sent_result").innerHTML = whoUserLikes.data[0].id;
 });
 
@@ -104,7 +104,6 @@ async function getMatches() {
   });
   let result = await response.json();
   let data = result.data;
-  console.log(data);
   if (data == null) {
     document.querySelector(
       ".match_results"
@@ -115,7 +114,7 @@ async function getMatches() {
       let block = document.createElement("div");
       block.className = "match_notification";
       match_containter.appendChild(block);
-      block.innerHTML = `<i class='far fa-user-circle' id="msg_icon"></i><p id="matches_msg">You have a date <span id="date_member">${data[i].user}</span> on ${data[i].date} ${data[i].time}<span style="display:none">,${data[i].restaurant},</span><span style="display:none">${data[i].id}</span></p>`;
+      block.innerHTML = `<i class='far fa-user-circle' id="msg_icon"></i><p id="matches_msg">You have a date <span id="date_member">${data[i].user}</span> on ${data[i].date.slice(0, 10)} ${data[i].time}<span style="display:none">,${data[i].restaurant},</span><span style="display:none">${data[i].id}</span></p>`;
 
       const matchesMsg = document.querySelectorAll(".match_notification");
 
@@ -183,7 +182,7 @@ async function renderMatchInfo(date) {
   let useraRestaurantData = restaurantResult.data[0];
 
   document.querySelector(".match_results").innerHTML = `<div class="container">
-  
+
         <div class="card invitation-card">
           <div class="card-body" id="match_card">
             <h4 class="card-title">You have a date with <span class="w3-btn w3-hover-opacity" id="trial"><b>${useraProfileData.nickname}</b></span>!</h4>
@@ -192,15 +191,15 @@ async function renderMatchInfo(date) {
               <li class="list-group-item"><strong>Date:</strong> ${matchInfo[2]}</li>
               <li class="list-group-item w3-tooltip"><strong>Location: </strong><b>${useraRestaurantData[0].name}</b> <span class="w3-text w3-tag" id="match_result_card_text"><h5>How to get there: </h5><a href="https://www.google.com/maps/place/?q=place_id:${useraRestaurantData[0].placeid}">${useraRestaurantData[0].address}<i class='fa fa-link'></i></a></span></li>
             </ul>
-            <h5>Please cancel the date if you are not able to be there.</h5>  
+            <h5>Please cancel the date if you are not able to be there.</h5>
             <button class="btn btn-info mt-3" id="back_to_results">back</button>
             <button class="btn btn-danger mt-3" id="cancel">Cancel the date</button>
 
           </div>
-   
+
     </div>
   </div>
-    
+
     `;
   let back_to_resultsBtn = document.querySelector("#back_to_results");
   if (back_to_resultsBtn) {
@@ -304,17 +303,13 @@ async function likeOthers() {
     let result = await response.json();
     return result;
   } catch (error) {
-    // console.error("Error:", error);
   }
 }
 
 async function displayData() {
   try {
     let whoLikesUser = await getLiked();
-    console.log(whoLikesUser);
-
     if (whoLikesUser.error) {
-      //
     } else {
       cardData = whoLikesUser.data;
     }
@@ -325,7 +320,6 @@ async function displayData() {
 
 async function renderCard(cardIndex) {
   // Check if there are more cards to render
-
   if (cardData != null && cardIndex < cardData.length) {
     let currentCard = cardData[cardIndex];
     let profileResponse = await fetch(
@@ -360,14 +354,11 @@ async function renderCard(cardIndex) {
 
     let result = await profileResponse.json();
     let useraProfileData = result.data[0];
-
     let restaurantResult = await restaurantResponse.json();
-    console.log(restaurantResult);
     let useraRestaurantData = restaurantResult.data;
-
     let dateRestaurantResult = await dateRestaurantResponse.json();
     let dateRestaurantData = dateRestaurantResult.data[0];
-    console.log(dateRestaurantData);
+
     cardContainer.innerHTML = getCard(
       currentCard,
       useraProfileData,
@@ -434,7 +425,7 @@ function getCard(
 
           <h5>I  also like </h5>
           <h5>${userRestaurant} </h5>
-          <h5>I am finding a : 
+          <h5>I am finding a :
           <h6>${useraProfileData.relationship} relationship.</h6>
           <h5>I am a ${useraProfileData.diet}.</h5>
           <hr>
@@ -468,7 +459,7 @@ function getCardHTML(card, restaurant, userAOtherRestaurant) {
   <br>
   <h5>I  also like </h5>
   <h5>${userRestaurant}</h5>
-  <h5>I am finding a : 
+  <h5>I am finding a :
   <h6>${card.relationship} relationship.</h6>
   <h5>I am a ${card.diet}.</h5>
   <hr>
@@ -520,7 +511,6 @@ async function like(id) {
     body: JSON.stringify({ USERA: cardData[this.id].USERA, USERB: userId }),
   });
   let match_result = await match_response.json();
-  console.log(match_result);
   if (match_result.ok) {
     console.log(cardData[this.id].USERA);
     sendLike(cardData[this.id].USERA);

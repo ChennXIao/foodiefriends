@@ -9,27 +9,27 @@ const mysql = require("mysql");
 
 const _ = require("lodash");
 const aws = require("aws-sdk");
-const faker = require("faker");
+// const faker = require("faker");
 var similarity = require("compute-cosine-similarity");
 
 require("dotenv").config();
 const dbHost = process.env.DB_HOST;
 const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASSWORD;
+const DB_PORT = process.env.DB_PORT;
 
 const connection = mysql.createConnection({
   host: dbHost,
   user: dbUser,
   password: dbPassword,
   database: "foodiefriend",
-  port: 3306, // MySQL default port
+  port: DB_PORT, // MySQL default port
 });
 
 const ProfileController = {
   createProfile: async (req, res) => {
     try {
       const { nickname, gender, birthday, relationshipGoal, diet } = req.body;
-      console.log(req.body);
       let userID = decodeFromToken(req);
 
       await new Promise((resolve, reject) => {
@@ -87,9 +87,9 @@ const ProfileController = {
 
   getCurrentUserProfileAndFilter: async (req, res) => {
     try {
+
       let userID = decodeFromToken(req);
       let hasMatched = [];
-
       let results = await new Promise((resolve, reject) => {
         ProfileModel.CurrentUserProfileAndFilter(userID, (err, results) => {
           if (err) reject(err);
@@ -121,7 +121,6 @@ const ProfileController = {
       } catch (error) {
         // Handle the error
       }
-
       //current user's profile and filter
       let { minage, maxage, gender, diet, relationship } = results[0];
       console.log(minage, maxage, gender, diet, relationship);
@@ -139,8 +138,8 @@ const ProfileController = {
           }
         );
       });
-
       if (_.isEmpty(matchResults)) {
+
         return res.status(200).json({ message: "cannot find any" });
       }
 
@@ -170,15 +169,14 @@ const ProfileController = {
 
       let currentUserPriceLevel = [];
       let response = { data: [] };
-      let currentUserResponse = { data: [] };
-      let currentUserlikedResults = await new Promise((resolve, reject) => {
-        RestaurantModel.LikedRestaurant(userID, (err, dresults) => {
-          if (err) reject(err);
-          else resolve(dresults);
-        });
-      });
+      // let currentUserResponse = { data: [] };
+      // let currentUserlikedResults = await new Promise((resolve, reject) => {
+      //   RestaurantModel.LikedRestaurant(userID, (err, dresults) => {
+      //     if (err) reject(err);
+      //     else resolve(dresults);
+      //   });
+      // });
       response.data.push({ member: userID, name: [] });
-      console.log(currentUserlikedResults, "current");
 
       let likedResults = await new Promise((resolve, reject) => {
         RestaurantModel.LikedRestaurant(userID, (err, results) => {
@@ -186,6 +184,8 @@ const ProfileController = {
           else resolve(results);
         });
       });
+      console.log(likedResults);
+
       if (!_.isEmpty(likedResults)) {
         likedResults.forEach((element) => {
           console.log(element.price);
@@ -208,7 +208,6 @@ const ProfileController = {
       let currentUserRestaurant;
       currentUserRestaurant = response.data[0].name;
       console.log(currentUserRestaurant);
-
       //filter matched others
       for (const e of filteredMatchResults) {
         response.data.push({ member: e.member_id, name: [] });
@@ -274,8 +273,8 @@ const ProfileController = {
       });
       console.log(mostSimilarUsers, "iuhihuigo8tg8");
       //remove user self
-      // let currentuser =  mostSimilarUsers.splice(0,1)
-      // console.log(currentuser,"hu")
+      mostSimilarUsers.splice(0, 1)
+      console.log(mostSimilarUsers, "hu")
 
       const recommendedRestaurants = [];
       let response2 = { data: [] };
@@ -315,7 +314,7 @@ const ProfileController = {
             }
           }
         }
-
+        console.log(response2)
         // in the perfect match case, randomly pick one of the other's restaurants
         if (_.isEmpty(response2.data[memberIndex].name)) {
           const restaurantIndex = response.data.findIndex(
@@ -392,7 +391,7 @@ const ProfileController = {
 
       Promise.all(promises)
         .then(() => {
-          console.log(response2);
+          // console.log(response2);
 
           return res.status(200).json(response2);
         })
@@ -401,7 +400,6 @@ const ProfileController = {
           return res.status(500).json({ error: "Internal Server Error" });
         });
     } catch (err) {
-      console.error(err);
       return res
         .status(500)
         .json({ error: true, message: "Internal Server Error" });

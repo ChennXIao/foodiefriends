@@ -1,4 +1,3 @@
-// controllers/userController.js
 const UserModel = require("../models/userModel");
 const RestaurantModel = require("../models/restaurantModel");
 const {
@@ -76,7 +75,7 @@ const RestaurantController = {
   addRestaurants: async (req, res) => {
     const { name } = req.body;
     let userID = decodeFromToken(req);
-
+    console.log(req.body);
     try {
       for (const restaurant of name) {
         console.log(restaurant);
@@ -86,35 +85,49 @@ const RestaurantController = {
           restaurant.price,
           restaurant.place_id,
         ];
+
+        // First, check if the restaurant already exists in restaurant_info
+        const existingRestaurant = await new Promise((resolve, reject) => {
+          RestaurantModel.ifRestaurantExist(restaurant.place_id, (err, results) => {
+            if (err) throw err;
+            if (_.isEmpty(results)) {
+              resolve(null);
+            } else {
+              resolve(results[0]);
+            }
+          });
+        });
+console.log(existingRestaurant);
+        let restaurantId;
+        if (existingRestaurant) {
+          restaurantId = existingRestaurant.id;
+          console.log("Restaurant already exists with ID:", restaurantId);
+        } else {
+          restaurantId = await new Promise((resolve, reject) => {
+            RestaurantModel.addRestaurants(restaurantInfo, (err, results) => {
+              if (err) {
+                console.error("Error creating restaurant:", err);
+                reject(err);
+              } else {
+                console.log("Restaurant created successfully:", results);
+                resolve(results.insertId); // Return the new restaurant id
+              }
+            });
+          });
+        }
+
         await new Promise((resolve, reject) => {
-          RestaurantModel.addRestaurants(restaurantInfo, (err, results) => {
+          RestaurantModel.addUserRestaurantId(userID, restaurantId, (err, results) => {
             if (err) {
-              console.error("Error creating restaurant:", err);
+              console.error("Error creating user-restaurant relationship:", err);
               reject(err);
             } else {
-              console.log("restaurant created successfully:", results);
+              console.log("User-restaurant relationship created successfully:", results);
               resolve(results);
-              RestaurantModel.addUserRestaurantId(
-                userID,
-                results.insertId,
-                (err, results) => {
-                  if (err) {
-                    console.error("Error creating restaurant:", err);
-                    reject(err);
-                  } else {
-                    console.log(
-                      "User restaurantID created successfully:",
-                      results
-                    );
-                    resolve(results);
-                  }
-                }
-              );
             }
           });
         });
       }
-      res.status(200).json({ ok: true });
     } catch (error) {
       res
         .status(500)
@@ -124,7 +137,7 @@ const RestaurantController = {
 
   addRestaurant: async (req, res) => {
     const { id } = req.body;
-    console.log(req.body);
+    console.log(req.body,id, 'wrwrwrwr');
     let userID = decodeFromToken(req);
 
     try {
@@ -305,7 +318,7 @@ const RestaurantController = {
 
         if (_.isEmpty(results)) {
           return res
-            .status(500)
+            .status(200)
             .json({ error: true, message: "Cannot find filter data" });
         } else {
           console.log(results);
@@ -324,7 +337,7 @@ const RestaurantController = {
     try {
       const { date, time } = req.body;
       let userID = decodeFromToken(req);
-
+console.log(date, time, userID);
       RestaurantModel.ifDateExist(userID, (err, results) => {
         if (err) {
           throw err;

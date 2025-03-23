@@ -17,7 +17,7 @@ let token = localStorage.getItem("token");
 
 document.addEventListener("DOMContentLoaded", async () => {
   await login_check();
-  console.log(userId);
+  console.log(1);
   if (!userId) {
     // window.location.href = "/"
   } else {
@@ -32,7 +32,7 @@ function handleSignup() {
 
   let signup_msg = document.querySelector(".signup_form_msg");
   let url = "/api/user";
-
+  console.log(email);
   if (email === "" || password === "") {
     displayMsg(signup_msg, "Email and password are required!");
   } else {
@@ -43,7 +43,7 @@ function handleSignup() {
       },
       body: JSON.stringify({ email: email, password: password }),
     })
-      .then((response) => response.json())
+      .then((response) => response.text())
       .then((result) => {
         console.log(result);
         if (result.ok) {
@@ -136,9 +136,9 @@ async function login_check() {
   let token = localStorage.getItem("token")
     ? localStorage.getItem("token")
     : document.cookie.replace(
-        /(?:(?:^|.*;\s*)authToken\s*=\s*([^;]*).*$)|^.*$/,
-        "$1"
-      );
+      /(?:(?:^|.*;\s*)authToken\s*=\s*([^;]*).*$)|^.*$/,
+      "$1"
+    );
   if (!token) {
     // signin_state.textContent = "登入系統";
     return false;

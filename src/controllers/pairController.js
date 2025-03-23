@@ -8,7 +8,15 @@ var similarity = require("compute-cosine-similarity");
 const PairController = {
   makePair: (req, res) => {
     const { USERA, USERB, restaurant, date, time, timestamp } = req.body;
+console.log(JSON.stringify(req.body));
+    let formatedDate = new Date(date);
 
+    formatedDate = formatedDate.toISOString().split("T")[0]; // Extracts the YYYY-MM-DD part
+console.log(formatedDate);
+
+let formattedTimeStmap = new Date(timestamp); // Your input
+formattedTimeStmap = formattedTimeStmap.toISOString().slice(0, 19).replace("T", " ");
+console.log(formattedTimeStmap);
     try {
       PairModel.ifPairExist(USERB, USERA, (err, results) => {
         if (err) {
@@ -22,9 +30,9 @@ const PairController = {
             USERA,
             USERB,
             restaurant,
-            date,
+            formatedDate,
             time,
-            timestamp,
+            formattedTimeStmap,
             false,
             (err, results) => {
               if (err) {

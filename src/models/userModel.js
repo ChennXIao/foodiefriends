@@ -1,5 +1,5 @@
 const express = require("express");
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const path = require("path");
 const port = 80;
 const app = express();
@@ -18,32 +18,34 @@ const pool = require('./connectDb');
 const UserModel = {
 
   newUser: (email, password, callback) => {
+
     pool.getConnection((error, connection) => {
       if (error) {
         return callback(error, null);
       }
       const insertQuery = `INSERT INTO member (email, password) VALUES (?, ?)`;
       const values = [email, password];
+      console.log('run here33r23r2r32');
 
-    connection.query(insertQuery, values, (queryError, results) => {
-      connection.release();
+      connection.query(insertQuery, values, (queryError, results) => {
+        connection.release();
 
-      callback(queryError, results);
+        callback(queryError, results);
+      });
     });
-  });
   },
-  ifUserExist:(email, callback) => {
+  ifUserExist: (email, callback) => {
     pool.getConnection((error, connection) => {
       if (error) {
         return callback(error, null);
       }
       const selectQuery = `SELECT * FROM member WHERE email = ? ;`
-      connection.query(selectQuery,email, (queryError, results) => {
-      connection.release();
+      connection.query(selectQuery, email, (queryError, results) => {
+        connection.release();
 
-      callback(queryError, results);
+        callback(queryError, results);
+      });
     });
-  });
   },
 
 
@@ -54,15 +56,15 @@ const UserModel = {
       }
       const selectQuery = `SELECT * FROM member WHERE email = ? AND password = ?`;
       const values = [email, password];
-  
-      connection.query(selectQuery, values, (queryError, results) => {
-      connection.release();
 
-      callback(queryError, results);
+      connection.query(selectQuery, values, (queryError, results) => {
+        connection.release();
+
+        callback(queryError, results);
+      });
     });
-  });
   },
-  
+
 };
 
 module.exports = UserModel;

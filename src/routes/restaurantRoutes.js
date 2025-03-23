@@ -1,9 +1,7 @@
 const express = require('express');
-const { UserController, decodeFromToken } = require('../controllers/userController');
 const RestaurantController = require('../controllers/restaurantController');
 const ProfileController = require('../controllers/profileController');
 const PairController = require('../controllers/pairController');
-
 const router = express.Router();
 
 router.get('/api/restaurants/user/:userId', RestaurantController.getRestaurantsByUser);

@@ -1,11 +1,13 @@
 const UserModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const secretKey = "key";
+// not using _
 const _ = require("lodash");
 
 const UserController = {
   createUser: async (req, res) => {
     try {
+      console.log(req);
       const { email, password } = req.body;
 
       const existingUser = await new Promise((resolve, reject) => {
